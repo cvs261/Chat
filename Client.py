@@ -11,6 +11,11 @@ nickname = ""
 
 
 def connectToServer():
+    """
+    Se solicită utilizatorului să introducă un nume de utilizator, care este apoi trimis către server prin socket.
+    Dacă numele de utilizator este deja utilizat, utilizatorului i se afișează un mesaj de eroare.
+    În caz contrar, fereastra de chat este deschisă prin apelarea funcției openChatWindow(nickname).
+    """
     global nickname, clientSocket
     nickname = txtNickname.get()
     if nickname.strip() == '':
@@ -38,6 +43,11 @@ def connectToServer():
 
 
 def openChatWindow(nick):
+    """
+    Afișează mesajul de bun venit în fereastra de chat, apoi creează un câmp de text unde mesajele sunt afișate,
+    un câmp de text pentru utilizator să introducă mesajele sale și un buton "Trimite" pentru a trimite mesajele.
+    De asemenea, este creat un fir de execuție pentru a primi mesajele de la server și a le afișa în câmpul de text.
+    """
     connect_window.destroy()
 
     window = Tk()
@@ -54,6 +64,12 @@ def openChatWindow(nick):
     txt_your_message.grid(row=1, column=0, padx=10, pady=10)
 
     def sendMessage():
+        """
+        În funcția sendMessage(), mesajul utilizatorului este extras din câmpul de text
+        și trimis prin socket către server, care îl trimite la toți ceilalți utilizatori conectați.
+        Mesajul este apoi afișat în câmpul de text al utilizatorului.
+
+        """
         client_message = txt_your_message.get()
         txt_messages.insert(END, '\n' + nickname + ': ' + client_message)
         clientSocket.send(client_message.encode('utf-8'))
@@ -63,6 +79,12 @@ def openChatWindow(nick):
     bttn_send.grid(row=2, column=0, padx=10, pady=10)
 
     def recvMessage():
+        """
+        Funcția recvMessage() este responsabilă pentru primirea mesajelor de la server.
+        Acesta rulează într-un fir de execuție separat pentru a nu bloca firul principal.
+        Mesajele primite sunt decodate și afișate în câmpul de text al tuturor utilizatorilor.
+
+        """
         while True:
             server_message = clientSocket.recv(1024).decode('utf-8')
             if server_message == "!DISCONNECT":
